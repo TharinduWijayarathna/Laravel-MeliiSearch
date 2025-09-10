@@ -1,0 +1,74 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: melli-search-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:YourAppKeyHere
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/database/database.sqlite
+    depends_on:
+      - redis
+    networks:
+      - melli-search-network
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.16
+    container_name: melli-search-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_ENV=development
+      - MEILI_MASTER_KEY=masterKey
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - meilisearch_data:/meili_data
+    networks:
+      - melli-search-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: melli-search-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - melli-search-network
+
+  # Optional: Add a database service if you want to use MySQL/PostgreSQL instead of SQLite
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: melli-search-mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_DATABASE: melli_search
+  #     MYSQL_ROOT_PASSWORD: root_password
+  #     MYSQL_USER: melli_user
+  #     MYSQL_PASSWORD: melli_password
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   networks:
+  #     - melli-search-network
+
+volumes:
+  redis_data:
+  meilisearch_data:
+  # mysql_data:
+
+networks:
+  melli-search-network:
+    driver: bridge
