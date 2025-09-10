@@ -1,4 +1,4 @@
-# MeiliSearch - Laravel + MeiliSearch
+# MeiliSearch
 
 A simple Laravel application with MeiliSearch integration for fast, powerful search functionality.
 
