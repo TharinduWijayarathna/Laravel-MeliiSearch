@@ -1,229 +1,150 @@
-# Melli Search
+# Melli Search - Laravel + MeiliSearch
 
-A powerful Laravel-based advertisement search system with advanced search capabilities, built with Docker support.
+A simple Laravel application with MeiliSearch integration for fast, powerful search functionality.
 
-## Features
+## 🚀 Quick Start
 
-- 🔍 **Advanced Search**: Multi-field search with relevance scoring
-- 📊 **Filtering**: Category, location, price range, and date filters
-- 🏷️ **Tagging System**: Flexible tagging for better categorization
-- 📱 **RESTful API**: Complete CRUD operations with JSON responses
-- 🐳 **Docker Support**: Easy deployment with Docker and Docker Compose
-- 💾 **SQLite Database**: Lightweight database with sample data
-- 🚀 **Performance Optimized**: Indexed database queries and efficient search algorithms
-
-## Quick Start with Docker
-
-### Prerequisites
-
-- Docker
-- Docker Compose
-
-### Setup
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd melli-search
-```
-
-2. Run the setup script:
-```bash
-./docker-setup.sh
-```
-
-3. Access the application:
-- Web: http://localhost:8000
-- API: http://localhost:8000/api
-
-## API Endpoints
-
-### Advertisement Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/advertisements` | List all advertisements with search/filter options |
-| POST | `/api/advertisements` | Create a new advertisement |
-| GET | `/api/advertisements/{id}` | Get specific advertisement |
-| PUT | `/api/advertisements/{id}` | Update advertisement |
-| DELETE | `/api/advertisements/{id}` | Delete advertisement |
-
-### Search & Discovery
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/advertisements/search/advanced` | Advanced search with relevance scoring |
-| GET | `/api/advertisements/search/suggestions` | Get search suggestions |
-| GET | `/api/health` | Health check endpoint |
-
-## Search Parameters
-
-### Basic Search
-```
-GET /api/advertisements?search=guitar
-```
-
-### Advanced Filtering
-```
-GET /api/advertisements?search=macbook&category=Electronics&location=San Francisco&min_price=2000&max_price=4000
-```
-
-### Sorting
-```
-GET /api/advertisements?sort_by=price&sort_order=asc
-```
-
-### Pagination
-```
-GET /api/advertisements?page=2&per_page=10
-```
-
-## Advertisement Schema
-
-```json
-{
-  "id": 1,
-  "title": "Vintage 1960s Gibson Les Paul Guitar",
-  "description": "Beautiful vintage Gibson Les Paul in excellent condition...",
-  "content": "This stunning 1960s Gibson Les Paul features...",
-  "category": "Musical Instruments",
-  "location": "New York, NY",
-  "price": 8500.00,
-  "contact_email": "guitar.collector@email.com",
-  "contact_phone": "+1-555-0123",
-  "tags": ["guitar", "vintage", "gibson", "les paul", "collectible", "music"],
-  "is_active": true,
-  "expires_at": "2024-10-10T00:00:00.000000Z",
-  "created_at": "2024-09-10T08:10:23.000000Z",
-  "updated_at": "2024-09-10T08:10:23.000000Z"
-}
-```
-
-## Search Algorithm
-
-The Melli search system uses a sophisticated multi-field search algorithm:
-
-1. **Field Priority Scoring**:
-   - Title matches: 10 points
-   - Content matches: 5 points
-   - Description matches: 3 points
-   - Category matches: 3 points
-   - Location matches: 3 points
-   - Tag matches: 1 point
-
-2. **Search Features**:
-   - Multi-word search support
-   - Case-insensitive matching
-   - Partial word matching
-   - JSON tag searching
-   - Relevance-based sorting
-
-## Development Setup
-
-### Without Docker
-
-1. Install dependencies:
+### 1. Install Dependencies
 ```bash
 composer install
 npm install
 ```
 
-2. Setup environment:
+### 2. Setup Environment
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-3. Run migrations and seeders:
+### 3. Start MeiliSearch
+```bash
+docker-compose up -d meilisearch
+```
+
+### 4. Setup Database & Search
 ```bash
 php artisan migrate
 php artisan db:seed
+php artisan meilisearch:init
 ```
 
-4. Start development server:
+### 5. Start Laravel Server
 ```bash
 php artisan serve
-npm run dev
 ```
 
-### With Docker (Development)
+## 🔍 Search API Endpoints
 
-1. Build and start containers:
+### Basic Search
+```bash
+# Search for "guitar"
+curl "http://localhost:8000/api/advertisements?search=guitar"
+
+# Search with filters
+curl "http://localhost:8000/api/advertisements?search=laptop&category=Electronics&min_price=1000"
+```
+
+### Advanced Search
+```bash
+# Advanced search with relevance scoring
+curl "http://localhost:8000/api/advertisements/search/advanced?search=vintage"
+
+# Get search suggestions
+curl "http://localhost:8000/api/advertisements/search/suggestions?q=mac"
+```
+
+### CRUD Operations
+```bash
+# Get all advertisements
+curl "http://localhost:8000/api/advertisements"
+
+# Get specific advertisement
+curl "http://localhost:8000/api/advertisements/1"
+
+# Create new advertisement
+curl -X POST "http://localhost:8000/api/advertisements" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New Item","description":"Description","content":"Content","category":"Electronics","location":"New York","price":299.99}'
+
+# Update advertisement
+curl -X PUT "http://localhost:8000/api/advertisements/1" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Updated Title"}'
+
+# Delete advertisement
+curl -X DELETE "http://localhost:8000/api/advertisements/1"
+```
+
+## 🏗️ Architecture
+
+- **Laravel 12**: PHP framework
+- **MeiliSearch**: Fast search engine
+- **SQLite**: Database
+- **Docker**: MeiliSearch container
+
+## 📁 Key Files
+
+- `app/Models/Advertisement.php` - Advertisement model
+- `app/Http/Controllers/AdvertisementController.php` - API controller
+- `app/Services/MeiliSearchService.php` - MeiliSearch integration
+- `routes/api.php` - API routes
+- `docker-compose.yml` - MeiliSearch container
+
+## 🔧 Configuration
+
+MeiliSearch settings in `.env`:
+```
+MEILISEARCH_HOST=http://localhost:7700
+MEILISEARCH_KEY=masterKey
+MEILISEARCH_TIMEOUT=10
+```
+
+## 📊 Search Features
+
+- **Multi-field search**: Title, content, description, category, location, tags
+- **Relevance scoring**: Prioritizes matches in title and content
+- **Faceted search**: Filter by category, location, price range
+- **Search suggestions**: Auto-complete functionality
+- **Fast indexing**: Real-time search updates
+
+## 🐳 Docker (Optional)
+
+For full Docker setup:
 ```bash
 docker-compose up -d
 ```
 
-2. Run migrations and seeders:
-```bash
-docker-compose exec app php artisan migrate
-docker-compose exec app php artisan db:seed
-```
+This starts:
+- **MeiliSearch**: http://localhost:7700
+- **Redis**: http://localhost:6379
+- **Laravel App**: http://localhost:8000
 
-## Sample Data
-
-The application comes with 10 sample advertisements across various categories:
-
-- Musical Instruments (Vintage Gibson Les Paul)
-- Electronics (MacBook Pro M3 Max)
-- Furniture (Antique Oak Dining Set)
-- Photography (Professional Camera Kit)
-- Jewelry & Watches (Vintage Rolex Submariner)
-- Transportation (Electric Bike)
-- Home & Garden (Ceramic Dinnerware)
-- Music & Media (Vinyl Collection)
-- Kitchen & Dining (Professional Knife Set)
-- Sports & Outdoors (Camping Gear)
-
-## Docker Commands
+## 🧪 Testing
 
 ```bash
-# Start containers
-docker-compose up -d
+# Health check
+curl "http://localhost:8000/api/health"
 
-# View logs
-docker-compose logs -f app
+# Search test
+curl "http://localhost:8000/api/advertisements?search=guitar"
 
-# Access container shell
-docker-compose exec app bash
-
-# Stop containers
-docker-compose down
-
-# Rebuild containers
-docker-compose build --no-cache
+# MeiliSearch direct
+curl "http://localhost:7700/health"
 ```
 
-## Environment Variables
+## 📝 Sample Data
 
-Key environment variables for configuration:
+The seeder creates 10 sample advertisements with various categories:
+- Electronics (MacBook, iPhone, Camera)
+- Vehicles (Vintage Car, Motorcycle)
+- Furniture (Vintage Chair, Dining Table)
+- Musical Instruments (Guitar, Piano)
+- Books (Programming Book)
 
-```env
-APP_ENV=local
-APP_DEBUG=true
-APP_KEY=base64:YourAppKeyHere
-DB_CONNECTION=sqlite
-DB_DATABASE=/var/www/html/database/database.sqlite
-```
+## 🚀 Production Notes
 
-## Performance Considerations
-
-- Database indexes on frequently searched fields
-- Pagination to limit result sets
-- Efficient query building with Eloquent scopes
-- Redis caching support (configured but not required)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-## Support
-
-For support and questions, please open an issue in the repository.
+- Change `MEILISEARCH_KEY` in production
+- Use proper database (MySQL/PostgreSQL) instead of SQLite
+- Configure proper CORS settings
+- Add authentication if needed
+- Set up proper logging and monitoring
